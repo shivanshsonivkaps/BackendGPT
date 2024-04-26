@@ -1,4 +1,5 @@
 from flask import Flask, render_template, jsonify, request
+from flask_cors import CORS, cross_origin
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -21,7 +22,8 @@ PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
 embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
 
 app = Flask(__name__)
-
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 def get_vectorstore():
     vector_store = PineconeStore.from_existing_index(index_name="reserch",embedding=embeddings)
     return vector_store
@@ -42,11 +44,11 @@ def similar_docs(query,pinecone_apikey,pinecone_environment,pinecone_index_name,
     )
     index_name = pinecone_index_name
     index = pull_from_pinecone(pinecone_apikey,pinecone_environment,index_name,embeddings)
-    
-    index_stat = pinecone.Index(pinecone_index_name) 
-    vector_count = index_stat.describe_index_stats() 
+
+    index_stat = pinecone.Index(pinecone_index_name)
+    vector_count = index_stat.describe_index_stats()
     k = vector_count["total_vector_count"]
-    
+
     similar_docs = index.similarity_search(query, 2)
     sources = []
     for similar_doc in similar_docs:
@@ -56,16 +58,16 @@ def similar_docs(query,pinecone_apikey,pinecone_environment,pinecone_index_name,
 
 def get_context_retriever_chain(vector_store):
     llm = ChatOpenAI()
-    retriever = vector_store.as_retriever()  
+    retriever = vector_store.as_retriever()
     prompt = ChatPromptTemplate.from_messages([
       MessagesPlaceholder(variable_name="chat_history"),
       ("user", "{input}"),
       ("user", "Given the above conversation, generate a search query to look up in order to get information relevant to the conversation")
-    ]) 
+    ])
     retriever_chain = create_history_aware_retriever(llm, retriever, prompt)
     return retriever_chain
-    
-def get_conversational_rag_chain(retriever_chain): 
+
+def get_conversational_rag_chain(retriever_chain):
     llm = ChatOpenAI()
     prompt = ChatPromptTemplate.from_messages([
       ("system", "Answer the user's questions based on the below context:\n\n{context}"),
@@ -84,6 +86,7 @@ def qa():
     if request.method == "POST":
         try:
             user_input = request.json.get("question")
+            print(user_input)
             if user_input is None and user_input == "":
                 newJson = {
                     "status":400,
@@ -102,13 +105,14 @@ def qa():
             response = response['answer'] + f"\n\nSource : {source}"
 
             data = {"question": user_input, "answer": response}
-            
+
             return jsonify(data)
         except Exception as e:
+
             newJson = {
                     "status":400,
-                    "message":"Invalid question"
+                    "message":e
                 }
             return jsonify(newJson),400
- 
+
 app.run(debug=True, port=5001)
