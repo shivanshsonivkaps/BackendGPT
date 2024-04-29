@@ -10,46 +10,38 @@ from langchain.vectorstores import Pinecone
 from pinecone import Pinecone
 import os
 import time
-
 from dotenv import load_dotenv
-load_dotenv()
 
+#GLOBAL DECLERATIONS
+load_dotenv()
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
 PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
 embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+pinecone_environment="us-east-1"
 
 def get_vectorstore():
     vector_store = PineconeStore.from_existing_index(index_name=PINECONE_INDEX_NAME,embedding=embeddings)
     return vector_store
 
-def push_to_pinecone(docs,pinecone_environment="us-east-1",pinecone_index_name=PINECONE_INDEX_NAME):
+def push_to_pinecone(docs):
     text_splitter = RecursiveCharacterTextSplitter()
     document_chunks = text_splitter.split_documents(docs)
-    pinecone = Pinecone(
-        api_key=PINECONE_API_KEY,environment=pinecone_environment
-        )
     # create a vectorstore from the chunks
-    vector_store=PineconeStore.from_documents(document_chunks,embeddings,index_name=pinecone_index_name)
+    vector_store=PineconeStore.from_documents(document_chunks,embeddings,index_name=PINECONE_INDEX_NAME)
 
-def pull_from_pinecone(pinecone_environment="us-east-1"):
+def pull_from_pinecone():
     time.sleep(10)
-    pinecone = Pinecone(
-        api_key=PINECONE_API_KEY,environment=pinecone_environment
-    )
-    index_name = PINECONE_INDEX_NAME
-    index = PineconeStore.from_existing_index(index_name, embeddings)
+    index = PineconeStore.from_existing_index(PINECONE_INDEX_NAME, embeddings)
     return index
 
-def similar_docs(query,pinecone_index_name=PINECONE_INDEX_NAME,pinecone_environment="us-east-1"):
+def similar_docs(query):
     pinecone = Pinecone(
         api_key=PINECONE_API_KEY,environment=pinecone_environment
     )
     index = pull_from_pinecone()
-
-    index_stat = pinecone.Index(pinecone_index_name)
+    index_stat = pinecone.Index(PINECONE_INDEX_NAME)
     vector_count = index_stat.describe_index_stats()
     k = vector_count["total_vector_count"]
-
     similar_docs = index.similarity_search(query, 2)
     sources = []
     for similar_doc in similar_docs:
