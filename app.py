@@ -8,11 +8,9 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
-
 # home()
 # Route: /
 # Description: Returns a simple "Hello World" message.
-
 @app.route("/")
 def home():
     return "Hello World"
@@ -54,31 +52,24 @@ def qa():
                     "message":e
                 }
             return jsonify(newJson),400
-        
+
+
 
 # receive_pdf()
 # Route: /receive_pdf
-# Description: Handles a POST request containing a PDF file named "Demo". It extracts text from the PDF, processes it, and pushes it to a Pinecone index for later retrieval.
+# Description: Handles a POST request containing a PDF file and pushes it to a Pinecone index for later retrieval.
 @app.route('/receive_pdf', methods=["GET",'POST'])
 def receive_pdf():
     try:
-
-    #Getting files from API
-
         files = request.files
         file = files.get('Demo')
         file_name = file.filename
         newPdf = create_docs(file , file_name)
-
-
-
         push_to_pinecone(newPdf)
         return jsonify("OK"),200
     except Exception as e:
         print(e)
-
         error_dict = {"status" : "500", "message" : str(e)}
         return jsonify(error_dict), 400
 
 app.run(debug=True, port=5001)
-

@@ -21,105 +21,70 @@ embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
 pinecone_environment="us-east-1"
 
 
-"""
-Functionality: Retrieves a vector store from Pinecone.
-Parameters:None.
-Description: This function fetches a vector store from Pinecone using the provided index name and embedding model.
-"""
-def get_vectorstore(): 
+
+def get_vectorstore():
+    """
+    Functionality: Retrieves a vector store from Pinecone.
+    Parameters:None.
+    Description: This function fetches a vector store from Pinecone using the provided index name and embedding model.
+    """
     vector_store = PineconeStore.from_existing_index(index_name=PINECONE_INDEX_NAME,embedding=embeddings)
     return vector_store
 
 
 
 
-"""
-    Pushes documents to a Pinecone index.
 
-    Args:
-        docs (list): A list of document objects to be pushed to Pinecone.
-        pinecone_environment (str, optional): The environment where the Pinecone index is hosted (default is "us-east-1").
-        pinecone_index_name (str, optional): The name of the Pinecone index to push the documents to (default is fetched from environment variables).
-"""
-def push_to_pinecone(docs,pinecone_environment="us-east-1",pinecone_index_name=PINECONE_INDEX_NAME): 
+def push_to_pinecone(docs):
+    """
+    Pushes documents to a Pinecone index.
+    Args:docs (list): A list of document objects to be pushed to Pinecone.
+    """
     text_splitter = RecursiveCharacterTextSplitter()
     document_chunks = text_splitter.split_documents(docs)
     pinecone = Pinecone(
         api_key=PINECONE_API_KEY,environment=pinecone_environment
         )
-    # create a vectorstore from the chunks
-    vector_store=PineconeStore.from_documents(document_chunks,embeddings,index_name=pinecone_index_name)  
+    vector_store=PineconeStore.from_documents(document_chunks,embeddings,index_name=PINECONE_INDEX_NAME)
 
 
 
-    
 
-def pull_from_pinecone(pinecone_environment="us-east-1"):  
+
+def pull_from_pinecone():
     """
     Pulls a Pinecone index for further processing.
-
-    Args:
-        pinecone_environment (str, optional): The environment where the Pinecone index is hosted (default is "us-east-1").
-
-    Returns:
-        PineconeStore: A Pinecone index object.
+    Returns:PineconeStore: A Pinecone index object.
     """
     time.sleep(10)
-    pinecone = Pinecone(
-        api_key=PINECONE_API_KEY,environment=pinecone_environment
-    )
-    index_name = PINECONE_INDEX_NAME
-    index = PineconeStore.from_existing_index(index_name, embeddings)
+    index = PineconeStore.from_existing_index(PINECONE_INDEX_NAME, embeddings)
     return index
 
 
 
-def similar_docs(query,pinecone_index_name=PINECONE_INDEX_NAME,pinecone_environment="us-east-1"): 
+def similar_docs(query):
     """
     Searches for similar documents in a Pinecone index based on a query.
-
-    Args:
-        query (str): The query string for which similar documents are to be searched.
-        pinecone_index_name (str, optional): The name of the Pinecone index to search in (default is fetched from environment variables).
-        pinecone_environment (str, optional): The environment where the Pinecone index is hosted (default is "us-east-1").
-
-    Returns:
-        list: A list of sources of similar documents.
+    Args:query (str): The query string for which similar documents are to be searched.
+    Returns:list: A list of sources of similar documents.
     """
-
-
-
-
-
-    pinecone = Pinecone(
-        api_key=PINECONE_API_KEY,environment=pinecone_environment
-    )
     index = pull_from_pinecone()
-
-    index_stat = pinecone.Index(PINECONE_INDEX_NAME)
-    vector_count = index_stat.describe_index_stats()
-    k = vector_count["total_vector_count"]
-
     similar_docs = index.similarity_search(query, 2)
     sources = []
     for similar_doc in similar_docs:
         metadata = similar_doc.metadata
         sources.append(metadata.get("file"))
 
-    return sources 
+    return sources
 
 
 
-"""
-Constructs a retriever chain for contextual information retrieval.
-
-Args:
-    vector_store (PineconeStore): The vector store from which retrieval is performed.
-
-Returns:
-    retriever_chain: A retriever chain object.
-"""
-def get_context_retriever_chain(vector_store): 
+def get_context_retriever_chain(vector_store):
+    """
+    Constructs a retriever chain for contextual information retrieval.
+    Args:vector_store (PineconeStore): The vector store from which retrieval is performed.
+    Returns:retriever_chain: A retriever chain object.
+    """
 
     llm = ChatOpenAI()
     retriever = vector_store.as_retriever()
@@ -132,15 +97,11 @@ def get_context_retriever_chain(vector_store):
     return retriever_chain
 
 
-def get_conversational_rag_chain(retriever_chain): 
+def get_conversational_rag_chain(retriever_chain):
     """
     Constructs a retrieval chain for conversational response generation.
-
-    Args:
-        retriever_chain: The retriever chain used for contextual information retrieval.
-
-    Returns:
-        retrieval_chain: A retrieval chain object.
+    Args:retriever_chain: The retriever chain used for contextual information retrieval.
+    Returns:retrieval_chain: A retrieval chain object.
     """
 
     llm = ChatOpenAI()
