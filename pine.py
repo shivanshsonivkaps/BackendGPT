@@ -15,13 +15,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
+PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
 embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
 
 def get_vectorstore():
-    vector_store = PineconeStore.from_existing_index(index_name="newcsv",embedding=embeddings)
+    vector_store = PineconeStore.from_existing_index(index_name=PINECONE_INDEX_NAME,embedding=embeddings)
     return vector_store
 
-def push_to_pinecone(docs,pinecone_environment="us-east-1",pinecone_index_name="newcsv"):
+def push_to_pinecone(docs,pinecone_environment="us-east-1",pinecone_index_name=PINECONE_INDEX_NAME):
     text_splitter = RecursiveCharacterTextSplitter()
     document_chunks = text_splitter.split_documents(docs)
     pinecone = Pinecone(
@@ -30,21 +31,20 @@ def push_to_pinecone(docs,pinecone_environment="us-east-1",pinecone_index_name="
     # create a vectorstore from the chunks
     vector_store=PineconeStore.from_documents(document_chunks,embeddings,index_name=pinecone_index_name)
 
-def pull_from_pinecone(pinecone_environment,pinecone_index_name,embeddings):
+def pull_from_pinecone(pinecone_environment="us-east-1"):
     time.sleep(10)
     pinecone = Pinecone(
         api_key=PINECONE_API_KEY,environment=pinecone_environment
     )
-    index_name = pinecone_index_name
+    index_name = PINECONE_INDEX_NAME
     index = PineconeStore.from_existing_index(index_name, embeddings)
     return index
 
-def similar_docs(query,pinecone_environment="us-east-1",pinecone_index_name="newcsv"):
+def similar_docs(query,pinecone_index_name=PINECONE_INDEX_NAME,pinecone_environment="us-east-1"):
     pinecone = Pinecone(
         api_key=PINECONE_API_KEY,environment=pinecone_environment
     )
-    index_name = pinecone_index_name
-    index = pull_from_pinecone(PINECONE_API_KEY,pinecone_environment,index_name,embeddings)
+    index = pull_from_pinecone()
 
     index_stat = pinecone.Index(pinecone_index_name)
     vector_count = index_stat.describe_index_stats()
