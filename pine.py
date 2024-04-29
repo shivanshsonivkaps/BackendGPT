@@ -12,11 +12,14 @@ import os
 import time
 
 from dotenv import load_dotenv
-load_dotenv()
 
+#GLOBAL DECLERATIONS
+load_dotenv()
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
 PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
-embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2") 
+embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+pinecone_environment="us-east-1"
+
 
 """
 Functionality: Retrieves a vector store from Pinecone.
@@ -83,12 +86,17 @@ def similar_docs(query,pinecone_index_name=PINECONE_INDEX_NAME,pinecone_environm
     Returns:
         list: A list of sources of similar documents.
     """
+
+
+
+
+
     pinecone = Pinecone(
         api_key=PINECONE_API_KEY,environment=pinecone_environment
     )
     index = pull_from_pinecone()
 
-    index_stat = pinecone.Index(pinecone_index_name)
+    index_stat = pinecone.Index(PINECONE_INDEX_NAME)
     vector_count = index_stat.describe_index_stats()
     k = vector_count["total_vector_count"]
 
@@ -97,6 +105,7 @@ def similar_docs(query,pinecone_index_name=PINECONE_INDEX_NAME,pinecone_environm
     for similar_doc in similar_docs:
         metadata = similar_doc.metadata
         sources.append(metadata.get("file"))
+
     return sources 
 
 
@@ -111,6 +120,7 @@ Returns:
     retriever_chain: A retriever chain object.
 """
 def get_context_retriever_chain(vector_store): 
+
     llm = ChatOpenAI()
     retriever = vector_store.as_retriever()
     prompt = ChatPromptTemplate.from_messages([
@@ -120,6 +130,7 @@ def get_context_retriever_chain(vector_store):
     ])
     retriever_chain = create_history_aware_retriever(llm, retriever, prompt)
     return retriever_chain
+
 
 def get_conversational_rag_chain(retriever_chain): 
     """
@@ -131,6 +142,7 @@ def get_conversational_rag_chain(retriever_chain):
     Returns:
         retrieval_chain: A retrieval chain object.
     """
+
     llm = ChatOpenAI()
     prompt = ChatPromptTemplate.from_messages([
       ("system", "Answer the user's questions based on the below context:\n\n{context}"),
@@ -138,4 +150,6 @@ def get_conversational_rag_chain(retriever_chain):
       ("user", "{input}"),
     ])
     stuff_documents_chain = create_stuff_documents_chain(llm,prompt)
+
     return create_retrieval_chain(retriever_chain, stuff_documents_chain)
+
