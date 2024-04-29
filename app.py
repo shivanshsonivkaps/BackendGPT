@@ -1,26 +1,22 @@
-from flask import Flask, render_template, jsonify, request
-from flask_cors import CORS, cross_origin
+from flask import Flask,  jsonify, request
+from flask_cors import CORS
 from utils import *
 from pine import *
+
+
 
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
-# home()
-# Route: /
-# Description: Returns a simple "Hello World" message.
-@app.route("/")
-def home():
-    return "Hello World"
 
 
-# qa()
+
 # Route: /chat
-# Description: Handles a POST request containing a JSON object with a "question" field. It processes the question, retrieves relevant information using retrieval chains, and returns a JSON response containing the question and the answer along with the source of the information.
 @app.route("/chat", methods=["GET", "POST"])
 def qa():
+    # Description: Handles a POST request containing a JSON object with a "question" field. It processes the    question, and returns a JSON response containing the question and the answer along with the source of the  information.
     if request.method == "POST":
         try:
             user_input = request.json.get("question")
@@ -55,11 +51,11 @@ def qa():
 
 
 
-# receive_pdf()
+
 # Route: /receive_pdf
-# Description: Handles a POST request containing a PDF file and pushes it to a Pinecone index for later retrieval.
 @app.route('/receive_pdf', methods=["GET",'POST'])
 def receive_pdf():
+    # Description: Handles a POST request containing a PDF file and pushes it to a Pinecone index for later retrieval.
     try:
         files = request.files
         file = files.get('Demo')
