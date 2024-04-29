@@ -6,12 +6,13 @@ from langchain.chains import create_history_aware_retriever, create_retrieval_ch
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_community.vectorstores import Pinecone
 from langchain_community.vectorstores import Pinecone as PineconeStore
-from langchain.vectorstores import Pinecone
+from dotenv import load_dotenv
 from pinecone import Pinecone
 import os
 import time
 
-from dotenv import load_dotenv
+
+
 
 #GLOBAL DECLERATIONS
 load_dotenv()
@@ -32,9 +33,6 @@ def get_vectorstore():
     return vector_store
 
 
-
-
-
 def push_to_pinecone(docs):
     """
     Pushes documents to a Pinecone index.
@@ -48,9 +46,6 @@ def push_to_pinecone(docs):
     vector_store=PineconeStore.from_documents(document_chunks,embeddings,index_name=PINECONE_INDEX_NAME)
 
 
-
-
-
 def pull_from_pinecone():
     """
     Pulls a Pinecone index for further processing.
@@ -59,7 +54,6 @@ def pull_from_pinecone():
     time.sleep(10)
     index = PineconeStore.from_existing_index(PINECONE_INDEX_NAME, embeddings)
     return index
-
 
 
 def similar_docs(query):
@@ -76,7 +70,6 @@ def similar_docs(query):
         sources.append(metadata.get("file"))
 
     return sources
-
 
 
 def get_context_retriever_chain(vector_store):
