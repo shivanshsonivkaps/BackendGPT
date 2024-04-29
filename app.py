@@ -7,10 +7,20 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+
+
+# home()
+# Route: /
+# Description: Returns a simple "Hello World" message.
+
 @app.route("/")
 def home():
     return "Hello World"
 
+
+# qa()
+# Route: /chat
+# Description: Handles a POST request containing a JSON object with a "question" field. It processes the question, retrieves relevant information using retrieval chains, and returns a JSON response containing the question and the answer along with the source of the information.
 @app.route("/chat", methods=["GET", "POST"])
 def qa():
     if request.method == "POST":
@@ -44,20 +54,31 @@ def qa():
                     "message":e
                 }
             return jsonify(newJson),400
+        
 
+# receive_pdf()
+# Route: /receive_pdf
+# Description: Handles a POST request containing a PDF file named "Demo". It extracts text from the PDF, processes it, and pushes it to a Pinecone index for later retrieval.
 @app.route('/receive_pdf', methods=["GET",'POST'])
 def receive_pdf():
     try:
+
+    #Getting files from API
 
         files = request.files
         file = files.get('Demo')
         file_name = file.filename
         newPdf = create_docs(file , file_name)
+
+
+
         push_to_pinecone(newPdf)
         return jsonify("OK"),200
     except Exception as e:
         print(e)
+
         error_dict = {"status" : "500", "message" : str(e)}
         return jsonify(error_dict), 400
 
 app.run(debug=True, port=5001)
+
