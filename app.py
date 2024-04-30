@@ -11,8 +11,6 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 
-
-
 # Route: /chat
 @app.route("/chat", methods=["GET", "POST"])
 def qa():
@@ -58,14 +56,16 @@ def receive_pdf():
     # Description: Handles a POST request containing a PDF file and pushes it to a Pinecone index for later retrieval.
     try:
         files = request.files
-        file = files.get('Demo')
-        file_name = file.filename
-        newPdf = create_docs(file , file_name)
-        push_to_pinecone(newPdf)
-        return jsonify("OK"),200
+        files = files.getlist('Demo')
+        for file in files:
+            file_name = file.filename
+            print(file_name)
+            newPdf = create_docs(file, file_name)
+            push_to_pinecone(newPdf)
+        return jsonify("OK"), 200
     except Exception as e:
         print(e)
         error_dict = {"status" : "500", "message" : str(e)}
         return jsonify(error_dict), 400
 
-app.run(debug=True, port=5001)
+app.run(debug=True,port=5001)
