@@ -63,12 +63,11 @@ def similar_docs(query):
     Returns:list: A list of sources of similar documents.
     """
     index = pull_from_pinecone()
-    similar_docs = index.similarity_search(query, 2)
+    similar_docs = index.similarity_search(query, 1)
     sources = []
     for similar_doc in similar_docs:
         metadata = similar_doc.metadata
-        sources.append(metadata.get("file"))
-
+        sources.append(metadata.get("filename"))
     return sources
 
 
@@ -104,6 +103,6 @@ def get_conversational_rag_chain(retriever_chain):
       ("user", "{input}"),
     ])
     stuff_documents_chain = create_stuff_documents_chain(llm,prompt)
-
+    
     return create_retrieval_chain(retriever_chain, stuff_documents_chain)
 
