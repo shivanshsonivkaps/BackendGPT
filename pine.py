@@ -67,7 +67,8 @@ def similar_docs(query):
     sources = []
     for similar_doc in similar_docs:
         metadata = similar_doc.metadata
-        sources.append(metadata.get("filename"))
+        sources.append(metadata.get("filename")) 
+    print(sources)
 
     return sources
 
