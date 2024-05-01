@@ -3,15 +3,13 @@ from flask_cors import CORS
 from utils import *
 from pine import *
 
-
-
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 
-# Route: /chat
+
 @app.route("/chat", methods=["GET", "POST"])
 def qa():
     # Description: Handles a POST request containing a JSON object with a "question" field. It processes the    question, and returns a JSON response containing the question and the answer along with the source of the  information.

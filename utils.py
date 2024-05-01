@@ -10,7 +10,7 @@ def get_pdf_text(pdf_doc):
         return text
 
 def create_docs(pdf_file , filename):
-    # for pdf_file in pdf_files:
+    
     docs = []
     if filename.lower().endswith(".pdf"):
         pdf_data = get_pdf_text(pdf_file)
