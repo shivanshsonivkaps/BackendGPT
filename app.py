@@ -1,69 +1,58 @@
-from flask import Flask,  jsonify, request
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from utils import *
 from pine import *
+from assistant import *
 
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
+assistant = create_assistant()
+asst_id = assistant.id
 
-
-
-
-@app.route("/chat", methods=["GET", "POST"])
+@app.route("/chat", methods=["POST"])
 def qa():
-    # Description: Handles a POST request containing a JSON object with a "question" field. It processes the    question, and returns a JSON response containing the question and the answer along with the source of the  information.
-    if request.method == "POST":
         try:
-            user_input = request.json.get("question")
-            print(user_input)
-            if user_input is None and user_input == "":
+            user_input = request.json.get("question") 
+            thread = request.json.get("thread")  
+            
+            if user_input is None or user_input == "":
                 newJson = {
-                    "status":400,
-                    "message":"Invalid question"
+                    "status": 400,
+                    "message": "Invalid question"
                 }
-                return jsonify(newJson),400
-            vector_store = get_vectorstore()
-            retriever_chain = get_context_retriever_chain(vector_store)
-            conversation_rag_chain = get_conversational_rag_chain(retriever_chain)
-            chat_history = []
-            response = conversation_rag_chain.invoke({
-                "chat_history": chat_history,
-                "input": user_input
-            })
-            source = similar_docs(user_input)
-            response = response['answer'] + f"\n\nSource : {source}"
+                return jsonify(newJson), 400
 
-            data = {"question": user_input, "answer": response}
-
+            similar_data = similar_docs(user_input)
+            dataset = similar_data.get("content")
+            source = similar_data.get("source")
+            update_assistant(dataset,asst_id)
+            response = generate_response(user_input, thread,  asst_id)
+            answer = response + f"\n\nSource : {source}"
+            data = {"question": user_input, "answer": answer }
             return jsonify(data)
         except Exception as e:
+         print(e)
+         error_dict = {"status": "500", "message": str(e)}
+         return jsonify(error_dict), 400
 
-            newJson = {
-                    "status":400,
-                    "message":e
-                }
-            return jsonify(newJson),400
-
-
-
-
-# Route: /receive_pdf
-@app.route('/receive_pdf', methods=["GET",'POST'])
+@app.route('/receive_pdf', methods=["POST"])
 def receive_pdf():
-    # Description: Handles a POST request containing a PDF file and pushes it to a Pinecone index for later retrieval.
     try:
         files = request.files
         files = files.getlist('Demo')
         for file in files:
             file_name = file.filename
-            print(file_name)
             newPdf = create_docs(file, file_name)
             push_to_pinecone(newPdf)
         return jsonify("OK"), 200
     except Exception as e:
         print(e)
-        error_dict = {"status" : "500", "message" : str(e)}
+        error_dict = {"status": "500", "message": str(e)}
         return jsonify(error_dict), 400
 
-app.run(debug=True,port=5001)
+
+if __name__ == '__main__':
+    # Get port from environment variable, fallback to default 5000 if not set
+    port = int(os.getenv("FLASK_RUN_PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
