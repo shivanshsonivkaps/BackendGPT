@@ -30,9 +30,9 @@ def create_docs(pdf_file , filename):
 
     return docs 
 
-
-
-
+def store_text_to_file(text):
+    with open("dataset.txt", 'w') as file:
+        file.write(text)
 
 
 

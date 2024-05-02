@@ -5,7 +5,16 @@ import time
 from dotenv import load_dotenv
 load_dotenv()
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-client = OpenAI(api_key=OPENAI_API_KEY)  
+client = OpenAI(api_key=OPENAI_API_KEY)
+
+
+def upload_file(path): # Convert relative path to absolute path 
+ abs_path = os.path.abspath(path)
+ file = client.files.create(file=open(abs_path, "rb"), purpose="assistants")
+ return file
+
+
+
 
 def create_assistant():
     """
@@ -16,21 +25,22 @@ def create_assistant():
         instructions="You're a helpful PDF bot that can assist guests that can answer user query. Use your knowledge base to best respond to customer queries. If you don't know the answer, say simply that you cannot help with question and advice to contact the host directly. Be friendly and funny.",
         tools=[{"type": "code_interpreter"}],
         model="gpt-3.5-turbo",
-        # documents=[{"text": text_data}],
+        #  documents=[{"text": text_data}],
     )
     return assistant 
 
-def update_assistant(dataset,assistant_id):
+def update_assistant(dataset,asst_id):
     """
     You currently cannot set the temperature for Assistant via the API.
     """
-    assistant = client.beta.assistants.update(
-        assistant_id,
-        instructions=f"You're a helpful PDF bot that can assist guests that can answer user query. Use the paragraph {dataset} to best respond to customer queries. If you don't know the answer, say simply that you cannot help with question and advice to contact the host directly. Be friendly and funny.",
-        tools=[{"type": "code_interpreter"}],
-    )
+    file = upload_file("dataset.txt")
+    if(file):
+        assistant = client.beta.assistants.update(
+        assistant_id=asst_id,
+        file_ids=[file.id],
+        )
+        return assistant 
     
-    return assistant 
 
 
 def check_if_thread_exists(wa_id):

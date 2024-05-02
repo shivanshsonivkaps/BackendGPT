@@ -8,6 +8,7 @@ from langchain_community.vectorstores import Pinecone
 from langchain_community.vectorstores import Pinecone as PineconeStore
 from dotenv import load_dotenv
 from pinecone import Pinecone
+from utils import *
 import os
 import time
 
@@ -66,6 +67,11 @@ def similar_docs(query):
     similar_docs = index.similarity_search(query, 2) 
     string_text = [similar_docs[i].page_content for i in range(len(similar_docs))]
     textual_data = string_text.pop()
+    print("data" , textual_data)
+    if(textual_data != ''):
+     store_text_to_file(textual_data )
+    else : 
+     store_text_to_file( "no response found ")
     # print(textual_data)
     sources = []
     for similar_doc in similar_docs:

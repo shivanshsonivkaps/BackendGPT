@@ -3,7 +3,7 @@ langchain-community==0.0.17
 langchain-core==0.1.18
 langchain-experimental==0.0.42
 langchain-openai==0.0.5
-openai==1.10.0
+openai==1.16.2
 pinecone-client==3.0.2
 pypdf==4.0.1
 PyPDF2==3.0.1
