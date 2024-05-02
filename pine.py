@@ -8,6 +8,7 @@ from langchain_community.vectorstores import Pinecone
 from langchain_community.vectorstores import Pinecone as PineconeStore
 from dotenv import load_dotenv
 from pinecone import Pinecone
+from utils import *
 import os
 import time
 
@@ -63,13 +64,25 @@ def similar_docs(query):
     Returns:list: A list of sources of similar documents.
     """
     index = pull_from_pinecone()
-    similar_docs = index.similarity_search(query, 2)
+    similar_docs = index.similarity_search(query, 2) 
+    string_text = [similar_docs[i].page_content for i in range(len(similar_docs))]
+    textual_data = string_text.pop()
+    print("data" , textual_data)
+    if(textual_data != ''):
+     store_text_to_file(textual_data )
+    else : 
+     store_text_to_file( "no response found ")
+    # print(textual_data)
     sources = []
     for similar_doc in similar_docs:
         metadata = similar_doc.metadata
-        sources.append(metadata.get("file"))
-
-    return sources
+        sources.append(metadata.get("filename")) 
+    # print(sources)
+    newdict = {
+        "source":sources,
+        "content":textual_data
+    }
+    return newdict
 
 
 def get_context_retriever_chain(vector_store):
@@ -107,3 +120,19 @@ def get_conversational_rag_chain(retriever_chain):
 
     return create_retrieval_chain(retriever_chain, stuff_documents_chain)
 
+def text_docs(query):
+    """
+    Searches for similar documents in a Pinecone index based on a query.
+    Args:query (str): The query string for which similar documents are to be searched.
+    Returns:list: A list of sources of similar documents.
+    """
+    index = pull_from_pinecone()
+    similar_docs = index.similarity_search(query, 2) 
+    string_text = [similar_docs[i].page_content for i in range(len(similar_docs))]
+    textual_data = string_text.pop()
+    # print(textual_data)
+    sources = []
+    for similar_doc in similar_docs:
+        metadata = similar_doc.metadata
+        sources.append(metadata.get("filename")) 
+    return textual_data
