@@ -1,0 +1,68 @@
+to transfer  data between communication  end  points on the ground, or with 
+services  related  to archiving  and retrieval of spacecraft  data. 
+An important  aspect of the ground  network is that it can be maintained  and 
+upgraded  to take advantage  of technological  developments  occurring  during 
+the lifetime of a mission. Furthermore,  the performance  of the ground network 
+can be enhanced  by improving  the terminal equipment  and by increasing  the 
+number  or performance  of the links  in the subnet. 
+4.4 Communications engineering process 
+4.4.1 Introduction 
+Space communications  engineering  is carried out  following  the systems 
+engineering  process model defined  in ECSS‐ E‐ST‐10 and ECSS‐E‐HB‐10. This 
+model includes  the establishment  of an appropriate  engineering  management  
+and configuration  control infrastructure,  and the identification  of interfaces  
+with other engineering  disciplines.  The communication  system engineering  is 
+then carried out as a sequence  of activities  managed  within this infrastructure.  
+4.4.2 Communication engineering activities 
+4.4.2.1 Overview 
+Spacecraft  communications  engineering  comprises  the following  activities:  
+• communications  engineering  management,  
+• requirement  engineering,  
+• analysis,  
+20 ECSS‐E‐ST‐50C 
+31 July 2008 
+• design and configuration, 
+• implementation,  
+• verification,  and 
+• operations.  
+4.4.2.2 Communications e ngineering management 
+Space communications  engineering  management  systems and procedures  are 
+put in place  to administer  the activities  that are performed  in the 
+implementation  and operation  of the space  communication  system. 
+Management  includes  the planning,  scheduling,  and supervision  of the 
+activities  to be performed,  as well as configuration  control and quality 
+assurance  of all of the products  of space communications  engineering.   
+Communications  engineering  management  is a continuous  activity that extends 
+throughout  the project. 
+4.4.2.3 Requirement engineering 
+The requirement  engineering  phase of space communication  systems 
+engineering  involves the capture of requirements  specific to the space 
+communications  system. 
+Communication  requirements  are derived from the spacecraft  mission 
+requirements  and by tailoring  the requirements  in this Standard.  
+The goals and activities  to be performed  during the requirement  engineering  
+phase are described  in ECSS‐E‐ST‐10 and ECSS‐E‐HB‐10. 
+4.4.2.4 Analysis 
+The analysis phase of the space communications  engineering  process is 
+concerned  with the analysis of the requirements  and the identification  of 
+appropriate  ways of implementing  the communication  system. The analysis 
+takes into account the performances  to meet the mission objectives,  mission 
+characteristics  such as satellite orbit parameters,  capabilities  of available  
+technologies,  and the availability  of existing ground infrastructure.  
+The output from the analysis phase is a recommended  means of implementing  
+the space  communication  system, with options if necessary,  which  is elaborated  
+during  the design and configuration  phase. 
+The analysis identifies  the frequencies  to be used  for RF communications  so that 
+an application  can be made to the International  Telecommunication  Union – 
+Radiocommunication  (ITU‐R) for assignment  of those frequencies.  
+The activities  of the analysis phase are described  in more  detail in 
+ECSS‐E‐ST‐10. 
+4.4.2.5 Design and configuration 
+Design involves the derivation  of the architectural  and detailed design of the 
+space  communication  system according  to the preceding  requirements  and 
+analysis phases. 
+21 ECSS‐E‐ST‐50C 
+31 July 2008 
+Configuration  is the identification  and naming  of the component  parts that 
+make up the space  communication  system in order that a proper  engineering  
+management  process can be applied to the development  of those parts.
